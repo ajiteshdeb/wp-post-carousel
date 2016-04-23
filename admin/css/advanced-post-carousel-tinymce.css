@@ -1,0 +1,11 @@
+
+/*
+*  TinyMCE button
+*/
+
+i.mce-i-advanced_post_carousel_button:before {
+    content: "\f181";
+    font: 400 20px/1 dashicons;
+    color: #0091cd;
+}
+

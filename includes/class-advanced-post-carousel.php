@@ -119,6 +119,13 @@ class Advanced_Post_Carousel {
 		 */
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'public/class-advanced-post-carousel-public.php';
 
+		/**
+		 * The class responsible for orchestrating the actions and filters of the
+		 * core plugin.
+		 */
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-advanced-post-carousel-utils.php';
+
+
 		$this->loader = new Advanced_Post_Carousel_Loader();
 
 	}
@@ -151,6 +158,10 @@ class Advanced_Post_Carousel {
 
 		$plugin_admin = new Advanced_Post_Carousel_Admin( $this->get_plugin_name(), $this->get_version() );
 
+ 		// Add function which checks if we're on our options page
+        $this->loader->add_action( 'check_is_my_plugin_screen', $plugin_admin, 'is_my_plugin_screen' );
+
+
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_styles' );
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts' );
 
@@ -160,6 +171,23 @@ class Advanced_Post_Carousel {
         // Add Settings link to the plugin
         $plugin_basename = plugin_basename( plugin_dir_path( __DIR__ ) . $this->plugin_name . '.php' );
         $this->loader->add_filter( 'plugin_action_links_' . $plugin_basename, $plugin_admin, 'add_action_links' );
+        
+        // Display Plugin Setup Page
+        $this->loader->add_action( 'plugin_setup_page', $plugin_admin, 'display_plugin_setup_page' );
+
+        // Display Carousel shortcode Setup Page
+        $this->loader->add_action( 'wp_ajax_advanced_post_carousel_shortcode_generator', $plugin_admin, 'advanced_post_carousel_shortcode_generator' );
+
+        // Load the TinyMCE plugin script
+        $this->loader->add_filter( 'mce_external_plugins', $plugin_admin, 'advanced_post_carousel_register_tinymce_javascript' );
+
+       
+        // adds TinyMCE button to the visual editor
+        $this->loader->add_filter( 'mce_buttons', $plugin_admin, 'advanced_post_carousel_add_tinymce_button' );
+
+        // Add Google fonts
+        $this->loader->add_action( 'wp_enqueue_scripts', $plugin_admin, 'enqueue_google_fonts' );
+
 
 	}
 
@@ -176,6 +204,10 @@ class Advanced_Post_Carousel {
 
 		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_styles' );
 		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_scripts' );
+
+		// Add function which checks if we're on our options page
+        $this->loader->add_action( 'check_is_my_plugin_screen', $plugin_public, 'is_my_plugin_screen' );
+
 
 	}
 

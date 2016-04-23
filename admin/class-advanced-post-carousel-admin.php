@@ -51,8 +51,25 @@ class Advanced_Post_Carousel_Admin {
 
 		$this->plugin_name = $plugin_name;
 		$this->version = $version;
+		$this->plugin_screen_hook_suffix = null;
 
 	}
+
+	/**
+	 * Check if we're on our options page
+	 *
+	 * @since    1.0.0
+	 */
+	public function is_my_plugin_screen() {
+    	$screen = get_current_screen();
+    		if (is_object($screen) && $screen->id == 'toplevel_page_advanced-post-carousel') {
+        	return true;
+    	} else {
+        	return false;
+    	}
+    	
+	}
+
 
 	/**
 	 * Register the stylesheets for the admin area.
@@ -72,12 +89,25 @@ class Advanced_Post_Carousel_Admin {
 		 * between the defined hooks and the functions defined in this
 		 * class.
 		 */
+		
+		wp_enqueue_style( $this->plugin_name . '-tinymce-css', plugin_dir_url( __FILE__ ) . 'css/advanced-post-carousel-tinymce.css', array(), $this->version, 'all' );
 
-		wp_enqueue_style( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'css/advanced-post-carousel-admin.css', array(), $this->version, 'all' );
+		
+		
+		if ($this->is_my_plugin_screen()) {
+			wp_enqueue_style( $this->plugin_name . '-admin-css', plugin_dir_url( __FILE__ ) . 'css/advanced-post-carousel-admin.css', array(), $this->version, 'all' );
+		}
+		/**
+		*To see what the id is of the current screen 
+		*echo '<pre>' . print_r(get_current_screen(), true) . '</pre>';
+		*/
 
+		
+		
+		
 	}
 
-	/**
+	/** 
 	 * Register the JavaScript for the admin area.
 	 *
 	 * @since    1.0.0
@@ -96,9 +126,35 @@ class Advanced_Post_Carousel_Admin {
 		 * class.
 		 */
 
-		wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/advanced-post-carousel-admin.js', array( 'jquery' ), $this->version, false );
+		wp_enqueue_script( $this->plugin_name . '-tinymce-js', plugin_dir_url( __FILE__ ) . 'js/advanced-post-carousel-tinymce.js', array( 'jquery' ), $this->version, false );
+
+		if ($this->is_my_plugin_screen()) {
+			wp_enqueue_script( $this->plugin_name . '-admin-js', plugin_dir_url( __FILE__ ) . 'js/advanced-post-carousel-admin.js', array( 'jquery' ), $this->version, false );
+
+			
+		}
+		/**
+		*To see what the id is of the current screen 
+		*echo '<pre>' . print_r(get_current_screen(), true) . '</pre>';
+		*/
+		
+		wp_enqueue_script( $this->plugin_name . '-tab-js', plugin_dir_url( __FILE__ ) . 'js/advanced-post-carousel-tab.js', array( 'jquery' ), $this->version, false );
+
+		
 
 	}
+
+
+	/**
+	*enquue google fonts
+	*/
+	public function enqueue_google_fonts() {
+		$google_fonts_query_args = array(
+		'family' => 'PT+Sans:400,700',
+		'subset' => 'latin,latin-ext'
+		);
+		wp_register_style( 'google_fonts', add_query_arg( $google_fonts_query_args, "//fonts.googleapis.com/css" ), array(), null );
+    }
 
 
     /**
@@ -112,7 +168,7 @@ class Advanced_Post_Carousel_Admin {
     /*
      * Add a settings page for this plugin to the Settings menu.
     */
-    add_menu_page( 'Advanced Post Carousel Setup', 'Advanced Post Carousel', 'manage_options', $this->plugin_name, array($this, 'display_plugin_setup_page')
+    $plugin_screen_hook_suffix = add_menu_page( 'Advanced Post Carousel Setup', 'Advanced Post Carousel', 'manage_options', $this->plugin_name, array($this, 'display_plugin_setup_page')
     ,'dashicons-slides');
     }
     
@@ -123,15 +179,48 @@ class Advanced_Post_Carousel_Admin {
     */
     public function add_action_links( $links ) {
       $settings_link = array(
-      '<a href="' . admin_url( 'options-general.php?page=' . $this->plugin_name ) . '">' . __('Settings', $this->plugin_name) . '</a>',
+      '<a href="' . admin_url( 'admin.php?page=' . $this->plugin_name ) . '">' . __('Settings', $this->plugin_name) . '</a>',
       );
       return array_merge(  $settings_link, $links );
 
     }
 
     public function display_plugin_setup_page() {
-    include_once( 'partials/advanced-post-carousel-admin-display.php' );
+    	include_once( 'partials/advanced-post-carousel-admin-display.php' );
     }
+
+    
+    public function advanced_post_carousel_shortcode_generator() {
+        include_once("partials/advanced-post-carousel-shortcode-generator.php");
+        exit();
+    }
+
+    /*
+     *  adds TinyMCE button to the visual editor
+     */
+    public function advanced_post_carousel_register_tinymce_javascript($tinymce_js) {
+        // check user permissions
+        if ( !current_user_can( "edit_posts" ) && !current_user_can( "edit_pages" ) ) {
+            return;
+        }
+
+        $tinymce_js["advanced_post_carousel_button"] = plugin_dir_url(__FILE__)."js/advanced-post-carousel-tinymce.js";
+        return $tinymce_js;
+    }
+
+    
+    public function advanced_post_carousel_add_tinymce_button($tinymce_button) {
+        // check user permissions
+        if ( !current_user_can( "edit_posts" ) && !current_user_can( "edit_pages" ) ) {
+            return;
+        }
+
+        array_push($tinymce_button, "advanced_post_carousel_button");
+        return $tinymce_button;
+
+    }
+
+
 
 
 }

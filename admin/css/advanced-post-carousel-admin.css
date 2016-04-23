@@ -1,4 +1,54 @@
-/**
- * All of the CSS for your admin-specific functionality should be
- * included in this file.
- */
+/*
+* Tooltip css
+*
+*/
+.advanced-post-carousel-tooltip {
+    display: inline;
+    position: relative;
+    text-decoration: none;
+    color: #00A0D2;
+}
+
+.advanced-post-carousel-tooltip.tooltip-warning {
+    color: #FF530D;
+}
+
+.advanced-post-carousel-tooltip:hover:before {
+    border: solid;
+    border-color: #00A0D2 transparent;
+    border-width: 6px 6px 0 6px;
+    bottom: 21px;
+    content: '';
+    left: 50%;
+    position: absolute;
+    z-index: 99;
+}
+
+.advanced-post-carousel-tooltip:hover:after {
+    background: #00A0D2;
+    background: rgb(0,160,210, .8);
+    border-radius: 5px;
+    bottom: 26px;
+    color: #fff;
+    content: attr(title);
+    left: 20%;
+    padding: 5px 10px;
+    position: absolute;
+    z-index: 98;
+    width: 220px;
+    font-size: 12px;
+}
+
+
+.advanced-post-carousel-tooltip.tooltip-warning:hover:before {
+    border: solid;
+    border-color: #FF530D transparent;
+    border-width: 6px 6px 0 6px;
+}
+
+.advanced-post-carousel-tooltip.tooltip-warning:hover:after {
+    background: #FF530D;
+    background: rgb(255,83,13, .8);
+    color: #fff;
+}
+
